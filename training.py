@@ -77,3 +77,50 @@ print(classification_report(Y_train, Y_train_pred))
 
 #il recall è migliorato ma comunque la predizione non è perfetta
 
+# invece di usare SMOTE faccio l'undersampling per la classe 0
+
+from imblearn.under_sampling import RandomUnderSampler
+rus = RandomUnderSampler(sampling_strategy=1, random_state=42)
+X_train_resampled, Y_train_resampled = rus.fit_resample(X_train, Y_train)
+
+# essenzialmente così il dataset di addestramento ha lo stesso numero di entry per entrambe le classi
+
+print(X_train_resampled.value_counts())
+print(Y_train_resampled.value_counts())
+
+rf.fit(X_train_resampled, Y_train_resampled)
+
+
+Y_train_pred = rf.predict(X_train)
+
+print(confusion_matrix(Y_train, Y_train_pred))
+print(classification_report(Y_train, Y_train_pred))
+
+# la precision per la classe 1 è salita al 50%, boh non so come altro migliorare
+# ora faccio la previsione sul test set
+
+print("\n\nTest Set Prediction\n")
+Y_test_pred = rf.predict(X_test)
+print(confusion_matrix(Y_test, Y_test_pred))
+print(classification_report(Y_test, Y_test_pred))
+
+#che è alquanto pessimo
+#provo a cambiare il modello di classificazione
+from sklearn.ensemble import RandomForestClassifier
+rf = RandomForestClassifier(random_state=42)
+rf.fit(X_train_resampled, Y_train_resampled)
+
+rf.fit(X_train_resampled, Y_train_resampled)
+
+
+Y_train_pred = rf.predict(X_train)
+
+print(confusion_matrix(Y_train, Y_train_pred))
+print(classification_report(Y_train, Y_train_pred))
+
+#che ha una precisione ottima per entrambe le classi, ma mi puzza di overfitting
+#vedo sul test
+Y_test_pred = rf.predict(X_test)
+print(confusion_matrix(Y_test, Y_test_pred))
+print(classification_report(Y_test, Y_test_pred))
+#infatti sul test la precisione scende al 70% per classe 0 e 40% per 1
