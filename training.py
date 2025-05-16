@@ -10,13 +10,10 @@ df = pd.read_csv('dataset/mainDataset.csv')
 df = df.dropna()
 
 #estrae la colonna con la categoria di rischio
-Y = df['Heart Attack Risk (Binary)']
+Y = df['Heart Attack Risk']
 
 #la rimuovo dal resto del dataset
-X = df.drop(columns=['Heart Attack Risk (Binary)'])
-
-#droppo pure la colonna Heart Attack Risk (Text) che non sono sicura cosa sia
-X = X.drop(columns=['Heart Attack Risk (Text)'])
+X = df.drop(columns=['Heart Attack Risk'])
 
 #prima di addestrare il modello devo convertire la colonna gender in valori numerici
 #1 per maschio e 0 per femmina
