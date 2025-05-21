@@ -64,7 +64,7 @@ print(classification_report(Y_test, Y_pred_rf_test))
 print("\nentrambi i modelli sono overfittati sul training set")
 
 from imblearn.over_sampling import SMOTE
-smote = SMOTE(random_state=42, sampling_strategy=0.85)
+smote = SMOTE(random_state=42)
 X_train_smote, Y_train_smote = smote.fit_resample(X_train, Y_train)
 print("\nY training set:\n")
 print(Y_train.value_counts())
@@ -144,10 +144,10 @@ print(Y_env_train_smote.value_counts())
 
 #print("ricerca della combinazione migliore di parametri per il random forest")
 #param_grid = {
-#    'n_estimators': [50, 100, 200],
-#    'max_depth': [3, 5, 10, None],
-#    'min_samples_split': [2, 5, 10],
-#    'min_samples_leaf': [1, 2, 4]
+#    'n_estimators': [50, 100, 150, 200, 300, 400],
+#    'max_depth': [3, 5, 10, 15, 20, None],
+#    'min_samples_split': [2, 5, 10, 15, 20],
+#    'min_samples_leaf': [1, 2, 4, 6, 8, 10]
 #}
 #gs_rf = GridSearchCV(RandomForestClassifier(random_state=42), param_grid, cv=5, n_jobs=-1, scoring='accuracy')
 #gs_rf.fit(X_env_train_smote, Y_env_train_smote)
@@ -155,10 +155,10 @@ print(Y_env_train_smote.value_counts())
 #print('Best parameters found by GridSearchCV:', gs_rf.best_params_)
 
 #qui mi ha dato invece
-#n_estimators=200, max_depth=None, min_samples_split=2, min_samples_leaf=1
+#n_estimators=400, max_depth=None, min_samples_split=2, min_samples_leaf=1
 
 rf_def_env_smote = RandomForestClassifier(random_state=42)
-rf_hyper_env_smote = RandomForestClassifier(n_estimators=200, max_depth=None, min_samples_split=2, min_samples_leaf=1, random_state=42)
+rf_hyper_env_smote = RandomForestClassifier(n_estimators=400, max_depth=None, min_samples_split=2, min_samples_leaf=1, random_state=42)
 rf_def_env_smote.fit(X_env_train_smote, Y_env_train_smote)
 rf_hyper_env_smote.fit(X_env_train_smote, Y_env_train_smote)
 
@@ -184,4 +184,4 @@ print("\n\nRandom Forest Classifier (hyperparamteres) on test set with SMOTE (en
 print(confusion_matrix(Y_env_test, Y_pred_rf_h_env_smote_test))
 print(classification_report(Y_env_test, Y_pred_rf_h_env_smote_test))
 
-#lo score è salito al 30% 🔥🔥🔥
+#lo score è salito al 30% (f1 per classe 1) 🔥🔥🔥
