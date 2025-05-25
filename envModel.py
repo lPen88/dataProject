@@ -116,6 +116,69 @@ print('test set')
 print(confusion_matrix(Y_test, knn_best_balanced.predict(X_test)))
 print(classification_report(Y_test, knn_best_balanced.predict(X_test)))
 
+#bagged trees
+from sklearn.ensemble import BaggingClassifier
+
+#ricerca per i parametri migliori per Bagging
+#param_grid_bagging = {
+#    'n_estimators': [100, 150, 200],
+#    'max_samples': [1.0, 1.50, 2.0],
+#    'max_features': [1.0, 1.50, 2.0],
+#    'bootstrap': [True, False],
+#    'bootstrap_features': [True, False]
+#}
+#bagging_grid_search = GridSearchCV(BaggingClassifier(), param_grid_bagging, cv=3, n_jobs=-1, verbose=2, scoring='f1')
+#bagging_grid_search.fit(X_train_smote, Y_train_smote)
+#print("Best parameters for Bagging found: ", bagging_grid_search.best_params_)
+#bootstrap = False, bootstrap_features = False, max_features = 1.0, max_samples = 1.0, n_estimators = 150
+
+
+bagging = BaggingClassifier(random_state=42)
+bagging_balanced = BaggingClassifier(random_state=42)
+bagging_best= BaggingClassifier(
+    bootstrap=False, bootstrap_features=False, max_features=0.75, max_samples=0.75, n_estimators=125, random_state=42)
+bagging_balanced_best=BaggingClassifier(
+    bootstrap=False, bootstrap_features=False, max_features=0.75, max_samples=0.75, n_estimators=125, random_state=42)
+
+bagging.fit(X_train_smote, Y_train_smote)
+bagging_balanced.fit(X_balanced, Y_balanced)
+bagging_best.fit(X_train_smote, Y_train_smote)
+bagging_balanced_best.fit(X_balanced, Y_balanced)
+
+print('Bagging')
+print('train set')
+print(confusion_matrix(Y_train_smote, bagging.predict(X_train_smote)))
+print(classification_report(Y_train_smote, bagging.predict(X_train_smote)))
+print('test set')
+print(confusion_matrix(Y_test, bagging.predict(X_test)))
+print(classification_report(Y_test, bagging.predict(X_test)))
+
+print('Bagging balanced')
+print('train set')
+print(confusion_matrix(Y_balanced, bagging_balanced.predict(X_balanced)))
+print(classification_report(Y_balanced, bagging_balanced.predict(X_balanced)))
+print('test set')
+print(confusion_matrix(Y_test, bagging_balanced.predict(X_test)))
+print(classification_report(Y_test, bagging_balanced.predict(X_test)))
+
+print('Bagging best')
+print('train set')
+print(confusion_matrix(Y_train_smote, bagging_best.predict(X_train_smote)))
+print(classification_report(Y_train_smote, bagging_best.predict(X_train_smote)))
+print('test set')
+print(confusion_matrix(Y_test, bagging_best.predict(X_test)))
+print(classification_report(Y_test, bagging_best.predict(X_test)))
+
+print('Bagging balanced best')
+print('train set')
+print(confusion_matrix(Y_balanced, bagging_balanced_best.predict(X_balanced)))
+print(classification_report(Y_balanced, bagging_balanced_best.predict(X_balanced)))
+print('test set')
+print(confusion_matrix(Y_test, bagging_balanced_best.predict(X_test)))
+print(classification_report(Y_test, bagging_balanced_best.predict(X_test)))
+    
+
+
 #SVC
 #from sklearn.svm import SVC
 
