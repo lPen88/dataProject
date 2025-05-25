@@ -9,8 +9,7 @@ df = pd.read_csv('dataset/mainDataset.csv')
 df.loc[:, 'Gender'] = df['Gender'].map({'Male': 1, 'Female': 0})
 
 Y = df['Heart Attack Risk']
-X=df[['Age', 'Gender', 'Smoking', 'Alcohol Consumption', 'Exercise Hours Per Week' , 'Previous Heart Problems' , 'Medication Use', 'Stress Level', 'BMI', 'Sleep Hours Per Day']]
-
+X=df[['Age', 'Gender', 'Smoking', 'Alcohol Consumption', 'Exercise Hours Per Week', 'Medication Use', 'Stress Level', 'BMI', 'Sleep Hours Per Day']]
 
 #applico sia smote che undersampling perchè in passato ha funzionato meglio
 
@@ -27,6 +26,11 @@ X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_
 X_train_smote, Y_train_smote = smote.fit_resample(X_train, Y_train)
 
 X_balanced, Y_balanced = undersampler.fit_resample(X_train_smote, Y_train_smote)
+
+#X_with_Y_b = X_balanced.copy()
+#X_with_Y_b['Heart Attack Risk'] = Y_balanced
+#
+#X_with_Y_b.to_csv('dataset/X_with_Y_b.csv', index=False)
 
 print(Y_train.value_counts())
 print(Y_train_smote.value_counts())
