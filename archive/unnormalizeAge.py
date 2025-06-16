@@ -10,5 +10,7 @@ min_age = 19
 max_age = 82
 
 df['Age'] = df['Age'] * (max_age - min_age) + min_age
+#convert result to integer
+df['Age'] = df['Age'].astype(int)
 
 df.to_csv('dataset/mainDatasetAgeFix.csv', index=False)
