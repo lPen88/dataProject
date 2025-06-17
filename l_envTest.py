@@ -2,15 +2,107 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import LabelEncoder
 
 
 df = pd.read_csv('dataset/dataset_l_fix.csv')
 
 df = df[df['Sleep Hours Per Day'] != 0]
 df.loc[:, 'Sex'] = df['Sex'].map({'Male': 1, 'Female': 0})
+df.loc[:, 'Diet'] = df['Diet'].map({'Unhealthy': 0, 'Average': 1, 'Healthy': 2})
 
-Y = df['Heart Attack Risk']
-X=df[['Age', 'Sex', 'Cholesterol', 'Systolic', 'Diastolic', 'Heart Rate']]
+le = LabelEncoder()
+
+Y=df['Heart Attack Risk']
+X=df[['Age', 'Cholesterol', 'Obesity', 'Diet', 'BMI']]
+
+X.loc[:, 'Diet'] = le.fit_transform(X['Diet'])
+
+#normalizing columns 'Cholesterol' and 'BMI'
+from sklearn.preprocessing import MinMaxScaler
+
+scaler = MinMaxScaler()
+X.loc[:, 'Cholesterol'] = scaler.fit_transform(X[['Cholesterol']])
+X.loc[:, 'BMI'] = scaler.fit_transform(X[['BMI']])
+
+print(X.head())
+
+import numpy as np
+from matplotlib import pyplot as plt
+
+dataset = X.copy()
+dataset['Heart Attack Risk'] = Y
+
+#risk_counts_both = {}
+#risk_counts_smoking = {}
+#risk_counts_alcohol = {}
+#risk_counts_neither = {}
+#for risk_class in [0, 1]:
+#    count_both = dataset[
+#        (dataset['Smoking'] == 1) &
+#        (dataset['Alcohol Consumption'] == 1) &
+#        (dataset['Heart Attack Risk'] == risk_class)
+#    ].shape[0]
+#    count_smoking = dataset[
+#        (dataset['Smoking'] == 1) &
+#        (dataset['Alcohol Consumption'] == 0) &
+#        (dataset['Heart Attack Risk'] == risk_class)
+#    ].shape[0]
+#    count_alcohol = dataset[
+#        (dataset['Smoking'] == 0) &
+#        (dataset['Alcohol Consumption'] == 1) &
+#        (dataset['Heart Attack Risk'] == risk_class)
+#    ].shape[0]
+#    count_neither = dataset[
+#        (dataset['Smoking'] == 0) &
+#        (dataset['Alcohol Consumption'] == 0) &
+#        (dataset['Heart Attack Risk'] == risk_class)
+#    ].shape[0]
+#    risk_counts_both[risk_class] = count_both
+#    risk_counts_smoking[risk_class] = count_smoking
+#    risk_counts_alcohol[risk_class] = count_alcohol
+#    risk_counts_neither[risk_class] = count_neither
+#
+#class_0_total = dataset[dataset['Heart Attack Risk'] == 0].shape[0]
+#class_1_total = dataset[dataset['Heart Attack Risk'] == 1].shape[0]
+#
+## Prepare data for plotting
+#labels = ['Both', 'Smoking only', 'Alcohol only', 'Neither']
+#counts_0 = [risk_counts_both[0]*100/class_0_total, 
+#            risk_counts_smoking[0]*100/class_0_total, 
+#            risk_counts_alcohol[0]*100/class_0_total, 
+#            risk_counts_neither[0]*100/class_0_total]
+#counts_1 = [risk_counts_both[1]*100/class_1_total, 
+#            risk_counts_smoking[1]*100/class_1_total, 
+#            risk_counts_alcohol[1]*100/class_1_total, 
+#            risk_counts_neither[1]*100/class_1_total]
+#
+#x = np.arange(len(labels))  # label locations
+#width = 0.35  # width of the bars
+#
+#fig, ax = plt.subplots(figsize=(8, 6))
+#rects1 = ax.bar(x - width/2, counts_0, width, label='Risk 0', color='blue')
+#rects2 = ax.bar(x + width/2, counts_1, width, label='Risk 1', color='red')
+#
+## Add labels, title, and custom x-axis tick labels
+#ax.set_ylabel('Percentage (%)')
+#ax.set_title('Percentage of Heart Attack Risk by Smoking and Alcohol Consumption')
+#ax.set_xticks(x)
+#ax.set_xticklabels(labels)
+#ax.legend()
+#
+## Add value labels on bars with two decimal points
+#for rects in [rects1, rects2]:
+#    for rect in rects:
+#        height = rect.get_height()
+#        ax.annotate(f'{height:.2f}',
+#                    xy=(rect.get_x() + rect.get_width() / 2, height),
+#                    xytext=(0, 3),  # 3 points vertical offset
+#                    textcoords="offset points",
+#                    ha='center', va='bottom')
+#
+#plt.tight_layout()
+#plt.show()
 
 #plot distribution of age
 #import matplotlib.pyplot as plt
@@ -23,13 +115,13 @@ X=df[['Age', 'Sex', 'Cholesterol', 'Systolic', 'Diastolic', 'Heart Rate']]
 #plt.ylabel('Frequency')
 #plt.show()
 
+
 from imblearn.over_sampling import SMOTE
 
 from sklearn.metrics import confusion_matrix, classification_report
 
-smote = SMOTE(random_state=42)
-
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+smote = SMOTE()
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
 X_train_smote, Y_train_smote = smote.fit_resample(X_train, Y_train)
 
 #X_with_Y_b = X_balanced.copy()
@@ -37,8 +129,8 @@ X_train_smote, Y_train_smote = smote.fit_resample(X_train, Y_train)
 #
 #X_with_Y_b.to_csv('dataset/X_with_Y_b.csv', index=False)
 
-print(Y_train.value_counts())
-print(Y_train_smote.value_counts())
+#print(Y_train.value_counts())
+#print(Y_train_smote.value_counts())
 
 #param_grid = {
 #    'n_estimators': [50, 100, 200],
@@ -52,13 +144,15 @@ print(Y_train_smote.value_counts())
 #print("Best parameters found: ", grid_search.best_params_)
 #'max_depth': 37, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 213
 
-rf = RandomForestClassifier(random_state=42)
+rf = RandomForestClassifier(n_estimators=200, max_depth=15, min_samples_split=4, min_samples_leaf=2)
+
+
 rf.fit(X_train_smote, Y_train_smote)
 
-print('Random Forest weighted')
-#print('train set')
-#print(confusion_matrix(Y_train_smote, rf_weighted.predict(X_train_smote)))
-#print(classification_report(Y_train_smote, rf_weighted.predict(X_train_smote)))
+print('Random Forest')
+print('train set')
+print(confusion_matrix(Y_train_smote, rf.predict(X_train_smote)))
+print(classification_report(Y_train_smote, rf.predict(X_train_smote)))
 print('test set')
 print(confusion_matrix(Y_test, rf.predict(X_test)))
 print(classification_report(Y_test, rf.predict(X_test)))
@@ -68,7 +162,7 @@ print(classification_report(Y_test, rf.predict(X_test)))
 #param_space = {
 #    'n_estimators': (50, 300),
 #    'max_depth': (5, 50),     
-#    'min_samples_split': (2, 20),
+#    'min_samples_split': (1, 20),
 #    'min_samples_leaf': (1, 20), 
 #}
 #
@@ -92,18 +186,3 @@ print(classification_report(Y_test, rf.predict(X_test)))
 #
 #print("Best Parameters:", bayes_search.best_params_)
 #print("Best Score:", bayes_search.best_score_)
-
-
-df=pd.read_csv('dataset/test.csv')
-Y= df['target']
-X=df.drop(columns=['target'])
-
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
-X_smote, Y_smote = smote.fit_resample(X_train, Y_train)
-
-rf.fit(X_smote, Y_smote)
-
-print('Test set performance on new data')
-print(confusion_matrix(Y_test, rf.predict(X_test)))
-print(classification_report(Y_test, rf.predict(X_test)))
-
