@@ -14,14 +14,17 @@ df.loc[:, 'Diet'] = df['Diet'].map({'Unhealthy': 0, 'Average': 1, 'Healthy': 2})
 le = LabelEncoder()
 
 Y=df['Heart Attack Risk']
-X=df[['Age', 'Cholesterol', 'Obesity', 'Diet', 'BMI']]
+X=df.drop(columns=['Country', 'Continent', 'Hemisphere', 'Heart Attack Risk'])
+X=X[['Cholesterol', 'Exercise Hours Per Week', 'Sedentary Hours Per Day',
+       'Income', 'BMI', 'Triglycerides']]
 
-X.loc[:, 'Diet'] = le.fit_transform(X['Diet'])
+#X.loc[:, 'Diet'] = le.fit_transform(X['Diet'])
 
 #normalizing columns 'Cholesterol' and 'BMI'
 from sklearn.preprocessing import MinMaxScaler
 
 scaler = MinMaxScaler()
+X.loc[:, 'Triglycerides'] = scaler.fit_transform(X[['Triglycerides']])
 X.loc[:, 'Cholesterol'] = scaler.fit_transform(X[['Cholesterol']])
 X.loc[:, 'BMI'] = scaler.fit_transform(X[['BMI']])
 
@@ -121,7 +124,7 @@ from imblearn.over_sampling import SMOTE
 from sklearn.metrics import confusion_matrix, classification_report
 
 smote = SMOTE()
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 X_train_smote, Y_train_smote = smote.fit_resample(X_train, Y_train)
 
 #X_with_Y_b = X_balanced.copy()
@@ -144,7 +147,7 @@ X_train_smote, Y_train_smote = smote.fit_resample(X_train, Y_train)
 #print("Best parameters found: ", grid_search.best_params_)
 #'max_depth': 37, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 213
 
-rf = RandomForestClassifier(n_estimators=200, max_depth=15, min_samples_split=4, min_samples_leaf=2)
+rf = RandomForestClassifier(n_estimators=200, max_depth=15, min_samples_split=4, min_samples_leaf=2, random_state=42)
 
 
 rf.fit(X_train_smote, Y_train_smote)
@@ -186,3 +189,41 @@ print(classification_report(Y_test, rf.predict(X_test)))
 #
 #print("Best Parameters:", bayes_search.best_params_)
 #print("Best Score:", bayes_search.best_score_)
+
+#from sklearn.model_selection import cross_val_score
+
+##Initialize your model
+#rf = RandomForestClassifier(n_estimators=200, max_depth=15, min_samples_split=4, min_samples_leaf=2)
+#
+## Perform 5-fold cross-validation
+#scores = cross_val_score(rf, X, Y, cv=5)
+#
+#print("Cross-validation scores:", scores)
+#print("Average score:", scores.mean())
+
+#from sklearn.feature_selection import RFE
+#
+#rfe = RFE(estimator=RandomForestClassifier(), n_features_to_select=6)
+#X_new = rfe.fit_transform(X, Y)
+#selected_features = X.columns[rfe.support_]
+#print(selected_features)
+
+#import tensorflow as tf
+#
+## Define your model architecture
+#model = tf.keras.Sequential([
+#    tf.keras.layers.Dense(16, activation='relu', input_shape=(X_train_smote.shape[1],)),
+#    tf.keras.layers.Dense(8, activation='relu'),
+#    tf.keras.layers.Dense(1, activation='sigmoid')  # Use 'softmax' and adjust units for multiclass
+#])
+#
+## Compile the model
+#model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+#
+## Train the model
+#model.fit(X_train_smote, Y_train_smote, epochs=16, batch_size=8, validation_split=0.2)
+#
+#loss, accuracy = model.evaluate(X_test, Y_test)
+#
+#print(f"ANN Test Loss: {loss:.4f}")
+#print(f"ANN Test Accuracy: {accuracy:.4f}")
