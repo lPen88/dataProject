@@ -171,3 +171,5 @@ print(classification_report(y_train, rf.predict(X_train)))
 print("Test set")
 print(confusion_matrix(y_test, rf.predict(X_test)))
 print(classification_report(y_test, rf.predict(X_test)))
+
+#80% sul test, we're winning bros
