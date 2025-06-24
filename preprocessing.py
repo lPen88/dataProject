@@ -9,6 +9,9 @@ test_df = pd.read_csv('dataset/test.csv')
 
 df = pd.concat([train_df, test_df], ignore_index=True)
 
+#tutti i grafici li ho fatti per vedere cosa poteva essere rilevante per il training
+#mo li lascio qui dentro così quando scriviamo il report basta copiarli
+
 ##distribuzione età in base a sesso e classe
 #g = sns.FacetGrid(df, row="Sex", col="Pclass", margin_titles=True, height=3, aspect=1.2)
 #g.map(sns.histplot, "Age", bins=40, color="steelblue", alpha=0.7, kde=False)
@@ -231,5 +234,5 @@ df_test = df[df['Survived'].isnull()].copy()
 df_test = df_test.drop(columns=['Survived'])
 df_train = df[df['Survived'].notnull()].copy()
 
-df_train.to_csv('dataset/train_preprocessed.csv', index=False)
-df_test.to_csv('dataset/test_preprocessed.csv', index=False)
+df_train.to_csv('dataset/train_processed.csv', index=False)
+df_test.to_csv('dataset/test_processed.csv', index=False)
