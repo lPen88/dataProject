@@ -9,8 +9,6 @@ test_df = pd.read_csv('dataset/test.csv')
 
 df = pd.concat([train_df, test_df], ignore_index=True)
 
-print(df.info())
-
 ##distribuzione età in base a sesso e classe
 #g = sns.FacetGrid(df, row="Sex", col="Pclass", margin_titles=True, height=3, aspect=1.2)
 #g.map(sns.histplot, "Age", bins=40, color="steelblue", alpha=0.7, kde=False)
@@ -137,39 +135,101 @@ df=df.drop(columns=['Cabin'])
 # le cabine, nonostante ignote, sappiamo che si troveranno tra il ponte A e E, che hanno un tasso di sopravvivenza più alto
 
 
+# poi per SibSp e ParCh li sommo per vedere quanta gente sta in una famiglia
+
+df['FamilySize'] = df['SibSp'] + df['Parch'] + 1  # +1 per includere il passeggero stesso
+df=df.drop(columns=['SibSp', 'Parch'])
+
+## Plot tasso di sopravvivenza per dimensione della famiglia
+#family_survival = df.groupby('FamilySize')['Survived'].mean() * 100
+#
+#plt.figure(figsize=(8, 5))
+#sns.barplot(x=family_survival.index, y=family_survival.values, color="steelblue")
+#plt.xlabel('Family Size')
+#plt.ylabel('Survival Rate (%)')
+#plt.title('Survival Rate by Family Size')
+#plt.tight_layout()
+#plt.show()
+#
+#
+## Plot quantità di passeggeri per dimensione della famiglia e classe
+#plt.figure(figsize=(10, 6))
+#sns.countplot(data=df, x='FamilySize', hue='Pclass', palette='Set2')
+#plt.xlabel('Family Size')
+#plt.ylabel('Count')
+#plt.title('Count of Family Size per Pclass')
+#plt.legend(title='Pclass')
+#plt.tight_layout()
+#plt.show()
+#
+## Plot tasso di sopravvivenza per dimensione della famiglia e classe
+#family_pclass_survival = df.groupby(['FamilySize', 'Pclass'])['Survived'].mean().unstack() * 100
+#
+#plt.figure(figsize=(10, 6))
+#family_pclass_survival.plot(kind='bar', figsize=(10, 6))
+#plt.xlabel('Family Size')
+#plt.ylabel('Survival Rate (%)')
+#plt.title('Survival Rate by Family Size and Pclass')
+#plt.legend(title='Pclass')
+#plt.tight_layout()
+#plt.show()
+
 print(df.info())
 
 # encoding delle feature
 le = LabelEncoder()
+df=df.drop(columns=['PassengerId', 'Name', 'Ticket', 'Embarked'])
 
 df = pd.get_dummies(df, columns=['Pclass', 'Deck'], prefix=['Pclass', 'Deck'])
 df.loc[:, 'Sex'] = df['Sex'].map({'male': 1, 'female': 0})
-df=df.drop(columns=['PassengerId', 'Name', 'Ticket', 'Embarked', 'SibSp', 'Parch'])
 df['Fare'] = pd.qcut(df['Fare'], 10)
 df['Age'] = pd.qcut(df['Age'], 10)
 df['Fare'] = le.fit_transform(df['Fare'].astype(str))
 df['Age'] = le.fit_transform(df['Age'].astype(str))
 
-# QUESTO E' TEMPORANEO
-# devo trovare il modo di fare qualcosa per le entry che hanno null in "Survived"
-df=df.dropna()
+# Bin FamilySize in 4 classi
+def bin_family_size(size):
+    if size == 1:
+        return 0  # solo
+    elif 2 <= size <= 4:
+        return 1  # piccola
+    elif 5 <= size <= 8:
+        return 2  # media
+    else:
+        return 3  # grande
 
-#random forest
-from sklearn.model_selection import train_test_split
-X = df.drop(columns=['Survived'])
-y = df['Survived']
+df.loc[:, 'FamilySize'] = df['FamilySize'].apply(bin_family_size)
+df = pd.get_dummies(df, columns=['FamilySize'], prefix='FamilySize')
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-from sklearn.ensemble import RandomForestClassifier
-rf = RandomForestClassifier(n_estimators=100, random_state=42)
-rf.fit(X_train, y_train)
-from sklearn.metrics import classification_report, confusion_matrix
+print(df.head(1))
 
-print("train set")
-print(confusion_matrix(y_train, rf.predict(X_train)))
-print(classification_report(y_train, rf.predict(X_train)))
-print("Test set")
-print(confusion_matrix(y_test, rf.predict(X_test)))
-print(classification_report(y_test, rf.predict(X_test)))
+#df=df.dropna()
+#
+##random forest
+#from sklearn.model_selection import train_test_split
+#X = df.drop(columns=['Survived'])
+#y = df['Survived']
+#
+#X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+#from sklearn.ensemble import RandomForestClassifier
+#rf = RandomForestClassifier(n_estimators=100, random_state=42)
+#rf.fit(X_train, y_train)
+#from sklearn.metrics import classification_report, confusion_matrix
+#
+#print("train set")
+#print(confusion_matrix(y_train, rf.predict(X_train)))
+#print(classification_report(y_train, rf.predict(X_train)))
+#print("Test set")
+#print(confusion_matrix(y_test, rf.predict(X_test)))
+#print(classification_report(y_test, rf.predict(X_test)))
 
-#80% sul test, we're winning bros
+
+#fatto tutto il preprocessing, salvo i dataset
+#mo non ho voglia di farlo ma il training verrà fatto in un altro file
+
+df_test = df[df['Survived'].isnull()].copy()
+df_test = df_test.drop(columns=['Survived'])
+df_train = df[df['Survived'].notnull()].copy()
+
+df_train.to_csv('dataset/train_preprocessed.csv', index=False)
+df_test.to_csv('dataset/test_preprocessed.csv', index=False)
