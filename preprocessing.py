@@ -206,29 +206,8 @@ df = pd.get_dummies(df, columns=['FamilySize'], prefix='FamilySize')
 
 print(df.head(1))
 
-#df=df.dropna()
-#
-##random forest
-#from sklearn.model_selection import train_test_split
-#X = df.drop(columns=['Survived'])
-#y = df['Survived']
-#
-#X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-#from sklearn.ensemble import RandomForestClassifier
-#rf = RandomForestClassifier(n_estimators=100, random_state=42)
-#rf.fit(X_train, y_train)
-#from sklearn.metrics import classification_report, confusion_matrix
-#
-#print("train set")
-#print(confusion_matrix(y_train, rf.predict(X_train)))
-#print(classification_report(y_train, rf.predict(X_train)))
-#print("Test set")
-#print(confusion_matrix(y_test, rf.predict(X_test)))
-#print(classification_report(y_test, rf.predict(X_test)))
-
 
 #fatto tutto il preprocessing, salvo i dataset
-#mo non ho voglia di farlo ma il training verrà fatto in un altro file
 
 df_test = df[df['Survived'].isnull()].copy()
 df_test = df_test.drop(columns=['Survived'])
