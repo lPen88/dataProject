@@ -141,6 +141,7 @@ df=df.drop(columns=['Cabin'])
 # poi per SibSp e ParCh li sommo per vedere quanta gente sta in una famiglia
 
 df['FamilySize'] = df['SibSp'] + df['Parch'] + 1  # +1 per includere il passeggero stesso
+
 df=df.drop(columns=['SibSp', 'Parch'])
 
 ## Plot tasso di sopravvivenza per dimensione della famiglia
@@ -179,8 +180,13 @@ df=df.drop(columns=['SibSp', 'Parch'])
 
 print(df.info())
 
+# il nome non avevo intenzione di usarlo ma poi ho pensato di vedere se il titolo del passeggero migliora le performance
+df['Title'] = df['Name'].str.extract(r',\s*([^\.]+)\.', expand=False)
+
+
 # encoding delle feature
 le = LabelEncoder()
+
 df=df.drop(columns=['PassengerId', 'Name', 'Ticket', 'Embarked'])
 
 df = pd.get_dummies(df, columns=['Pclass', 'Deck'], prefix=['Pclass', 'Deck'])
@@ -204,14 +210,48 @@ def bin_family_size(size):
 df.loc[:, 'FamilySize'] = df['FamilySize'].apply(bin_family_size)
 df = pd.get_dummies(df, columns=['FamilySize'], prefix='FamilySize')
 
+# questo dataset a parte ha il titolo
+df_with_title = df.copy()
+df=df.drop(columns=['Title'])
+
+# li ragruppo in base alla tipologia, scelte in base al tasso di sopravvivenza (guarda in test)
+df_with_title['Title'] = df_with_title['Title'].replace(
+    {
+        'Mrs': 'Miss',
+        'Ms': 'Miss',
+        'Mlle': 'Miss',
+        'Mme': 'Miss',
+        'Master': 'Mr',
+        'Dona': 'Nobility',
+        'Don': 'Nobility',
+        'Jonkheer': 'Nobility',
+        'the Countess': 'Nobility',
+        'Lady': 'Nobility',
+        'Sir': 'Nobility',
+        'Rev': 'Clergy',
+        'Col': 'Special',
+        'Major': 'Special',
+        'Capt': 'Special',
+        'Dr': 'Special'
+    }
+)
+
+df_with_title = pd.get_dummies(df_with_title, columns=['Title'], prefix='Title')
+
 print(df.head(1))
+print(df_with_title.head(1))
 
-
-#fatto tutto il preprocessing, salvo i dataset
 
 df_test = df[df['Survived'].isnull()].copy()
 df_test = df_test.drop(columns=['Survived'])
 df_train = df[df['Survived'].notnull()].copy()
 
+df_with_title_test = df_with_title[df_with_title['Survived'].isnull()].copy()
+df_with_title_test = df_with_title_test.drop(columns=['Survived'])
+df_with_title_train = df_with_title[df_with_title['Survived'].notnull()].copy()
+
 df_train.to_csv('dataset/train_processed.csv', index=False)
 df_test.to_csv('dataset/test_processed.csv', index=False)
+
+df_with_title_train.to_csv('dataset/train_processed_alt.csv', index=False)
+df_with_title_test.to_csv('dataset/test_processed_alt.csv', index=False)
