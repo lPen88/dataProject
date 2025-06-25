@@ -92,3 +92,20 @@ opt.fit(X_train, Y_train)
 print("Best Parameters Found:", opt.best_params_)
 print("\nClassification Report on Test Set:")
 print(classification_report(Y_test, opt.predict(X_test)))
+
+
+# test sul dataset di test
+test_df = pd.read_csv('dataset/test_processed.csv')
+passegers_ids = pd.read_csv('dataset/test.csv')['PassengerId']
+
+Y_test_final = opt.predict(test_df)
+
+
+submission_df = pd.DataFrame({
+    'PassengerId': passegers_ids,
+    'Survived': Y_test_final
+})
+
+# il collega li vuole in int
+submission_df['Survived'] = submission_df['Survived'].astype(int)
+submission_df.to_csv('dataset/submission.csv', index=False)
