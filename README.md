@@ -1,7 +1,11 @@
-Yapping
+# Progetto Data Analytics  
 
-tutti i link da infilare nel report  
+partecipanti:  
 
+**863003783**, Loris Umberto Pennucci  
+**863002365**, Misael Monaco  
+
+---  
 
 https://www.kaggle.com/competitions/titanic/overview  
 https://www.encyclopedia-titanica.org/titanic-survivor/martha-evelyn-stone.html  
