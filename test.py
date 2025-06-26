@@ -320,3 +320,46 @@ for i, (pclass, row) in enumerate(counts.iterrows()):
 
 plt.ylim(0, 110)
 plt.show()
+
+
+# distribuzione dei prezzi dei biglietti
+plt.figure(figsize=(8, 5))
+sns.histplot(df['Fare'].dropna(), bins=40, kde=True, color='skyblue', edgecolor='black')
+plt.xlabel('Fare')
+plt.ylabel('Frequency')
+plt.title('Fare Distribution')
+plt.show()
+
+
+# distribuzione dei prezzi dei biglietti per classe
+plt.figure(figsize=(8, 5))
+for pclass in sorted(df['Pclass'].unique()):
+    sns.kdeplot(
+        df[df['Pclass'] == pclass]['Fare'].dropna(),
+        label=f'Class {pclass}',
+        linewidth=2
+    )
+plt.xlabel('Fare')
+plt.ylabel('Density')
+plt.title('Fare Distribution by Passenger Class')
+plt.ylim(0, 0.15)
+plt.legend(title='Pclass')
+plt.show()
+
+
+
+
+# fare medio per dimensione della famiglia e classe
+fare_by_family = (
+    df.groupby(['FamilySize', 'Pclass'])['Fare']
+      .mean()
+      .reset_index()
+)
+plt.figure(figsize=(10, 6))
+ax = sns.barplot(data=fare_by_family, x='FamilySize', y='Fare', hue='Pclass')
+plt.title('Average Fare by Family Size and Passenger Class')
+plt.ylabel('Average Fare')
+plt.xlabel('Family Size')
+plt.legend(title='Passenger Class')
+
+plt.show()
