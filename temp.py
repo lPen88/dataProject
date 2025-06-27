@@ -53,6 +53,8 @@ submission_df = pd.DataFrame({
     'Survived': Y_test_final
 })
 
-# il collega li vuole in int
 submission_df['Survived'] = submission_df['Survived'].astype(int)
 submission_df.to_csv('del.csv', index=False)
+
+
+# consegnato ha un punteggio di 0.75 (??)

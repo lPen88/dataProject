@@ -9,35 +9,8 @@ test_df = pd.read_csv('dataset/test.csv')
 
 df = pd.concat([train_df, test_df], ignore_index=True)
 
-#tutti i grafici li ho fatti per vedere cosa poteva essere rilevante per il training
-#mo li lascio qui dentro così quando scriviamo il report basta copiarli
 
-##distribuzione età in base a sesso e classe
-#g = sns.FacetGrid(df, row="Sex", col="Pclass", margin_titles=True, height=3, aspect=1.2)
-#g.map(sns.histplot, "Age", bins=40, color="steelblue", alpha=0.7, kde=False)
-## per avere più tacche sull'asse x
-#for ax in g.axes.flatten():
-#    ax.set_xticks(np.arange(0, 85, 10))  # Adjust range and step as needed
-#plt.subplots_adjust(top=0.9)
-#g.figure.suptitle("Distribuzione dell'età per sesso e classe (tutti i passeggeri)")
-#plt.show()
-
-
-##distribuzione età in base a sesso, classe e sopravvivenza
-#df_plot = df.dropna(subset=['Survived', 'Age'])
-#
-## Convert 'Survived' to string for better plot labels
-#df_plot['Survived'] = df_plot['Survived'].map({0: 'Not Survived', 1: 'Survived'})
-#
-## Plot: Age distribution by Survived, Sex, and Pclass
-#g = sns.FacetGrid(df_plot, row="Sex", col="Pclass", hue="Survived", margin_titles=True, height=3, aspect=1.2)
-#g.map(sns.histplot, "Age", bins=40, alpha=0.7, kde=False)
-#g.add_legend(title="Survival Status")
-#plt.subplots_adjust(top=0.9)
-#g.figure.suptitle("Distribuzione dell'età per sesso, classe e sopravvivenza")
-#plt.show()
-
-#gestione "embarked" mancanti, mancano solo per due passeggeri, cercandole su internet
+#gestione mancanti, mancano solo per due passeggeri, cercandole su internet
 #Martha Evelyn Stone (830) si è imbarcata a Southampton assieme la domestica Amelie Icard (62)
 df.loc[df['PassengerId'] == 830, 'Embarked'] = 'S'
 df.loc[df['PassengerId'] == 62, 'Embarked'] = 'S'
@@ -77,106 +50,11 @@ df['Deck'] = df['Cabin'].apply(lambda x: 'A' if pd.notna(x) and x[0] == 'T' else
 # le cabine non le uso più
 df=df.drop(columns=['Cabin'])
 
-# composizione dei ponti in base alla classe
-
-#deck_pclass_counts = df.groupby(['Deck', 'Pclass']).size().unstack(fill_value=0)
-#deck_totals = deck_pclass_counts.sum(axis=1)
-#deck_pclass_percent = deck_pclass_counts.divide(deck_totals, axis=0) * 100
-#pclass_colors = {1: '#d8a6a6', 2: '#c46666', 3: '#a00000'}
-#colors = [pclass_colors[p] for p in sorted(deck_pclass_percent.columns)]
-#ax = deck_pclass_percent.plot(kind='bar', stacked=True, color=colors)
-#plt.ylabel('Deck composition (%)')
-#plt.title('Percentage of Pclass per Deck')
-#plt.tight_layout()
-## il bastardo voleva le etichette verticali
-#ax.set_xticklabels(ax.get_xticklabels(), rotation=0)
-#plt.show()
-
-# dal disegnetto vedi che quelle con cabin mancante sono per lo più di terza classe
-
-
-# percentuale di sopravvissuti per ponte
-
-#survival_rate_per_deck = df.groupby('Deck')['Survived'].mean() * 100
-#survival_rate_per_deck = survival_rate_per_deck.sort_index()
-#
-#plt.figure(figsize=(8, 5))
-#
-#for i, deck in enumerate(survival_rate_per_deck.index):
-#    plt.gca().add_patch(
-#        plt.Rectangle((i - 0.4, 0), 0.8, 100, color='#c46666', alpha=0.15, zorder=0)
-#    )
-#sns.barplot(x=survival_rate_per_deck.index, y=survival_rate_per_deck.values, color="steelblue", zorder=1)
-#plt.ylabel('Percentage of Survivors (%)')
-#plt.xlabel('Deck')
-#plt.title('Percentage of Survivors per Deck')
-#plt.ylim(0, 100)
-#plt.tight_layout()
-#plt.show()
-
-# IL GRAFICO SOPRA E' MISLEADING
-# la percentuale di sopravvivenza per il ponte G, composto da cabine di seconda e terza classe, è più alto del ponte A
-# ma se guardiamo il tasso di sopravvivenza per classe, vediamo che la terza classe ha un tasso di sopravvivenza molto basso
-# ciò è dovuto al fatto che le entry per il ponte G sono letteralmente 5, di cui 2 sono sopravvissute
-
-
-# visto che il ponte X è composto da tutte e tre le classi, vediamo la differenza di sopravvivenza per classe su quel ponte
-
-#deck_x = df[df['Deck'] == 'X']
-#survival_pclass = deck_x.groupby('Pclass')['Survived'].mean() * 100
-#survival_pclass = survival_pclass.sort_index()
-#
-#plt.figure(figsize=(8, 5))
-#sns.barplot(x=survival_pclass.index, y=survival_pclass.values, color="steelblue")
-#plt.ylabel('Percentage of Survivors (%)')
-#plt.xlabel('Pclass')
-#plt.title('Percentage of Survivors per Pclass (Deck X)')
-#plt.tight_layout()
-#plt.show()
-
-# come prevedibile, la sopravvivenza è più alta per la prima classe e seconda classe, visto che con molta probabilità
-# le cabine, nonostante ignote, sappiamo che si troveranno tra il ponte A e E, che hanno un tasso di sopravvivenza più alto
-
-
 # poi per SibSp e ParCh li sommo per vedere quanta gente sta in una famiglia
 
 df['FamilySize'] = df['SibSp'] + df['Parch'] + 1  # +1 per includere il passeggero stesso
 
 df=df.drop(columns=['SibSp', 'Parch'])
-
-## Plot tasso di sopravvivenza per dimensione della famiglia
-#family_survival = df.groupby('FamilySize')['Survived'].mean() * 100
-#
-#plt.figure(figsize=(8, 5))
-#sns.barplot(x=family_survival.index, y=family_survival.values, color="steelblue")
-#plt.xlabel('Family Size')
-#plt.ylabel('Survival Rate (%)')
-#plt.title('Survival Rate by Family Size')
-#plt.tight_layout()
-#plt.show()
-#
-#
-## Plot quantità di passeggeri per dimensione della famiglia e classe
-#plt.figure(figsize=(10, 6))
-#sns.countplot(data=df, x='FamilySize', hue='Pclass', palette='Set2')
-#plt.xlabel('Family Size')
-#plt.ylabel('Count')
-#plt.title('Count of Family Size per Pclass')
-#plt.legend(title='Pclass')
-#plt.tight_layout()
-#plt.show()
-#
-## Plot tasso di sopravvivenza per dimensione della famiglia e classe
-#family_pclass_survival = df.groupby(['FamilySize', 'Pclass'])['Survived'].mean().unstack() * 100
-#
-#plt.figure(figsize=(10, 6))
-#family_pclass_survival.plot(kind='bar', figsize=(10, 6))
-#plt.xlabel('Family Size')
-#plt.ylabel('Survival Rate (%)')
-#plt.title('Survival Rate by Family Size and Pclass')
-#plt.legend(title='Pclass')
-#plt.tight_layout()
-#plt.show()
 
 print(df.info())
 

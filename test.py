@@ -14,6 +14,7 @@ df = df.drop(columns=['PassengerId'])
 
 print(df.info())
 
+# i grafichelli poi li copiamo nel report finale
 
 #distribuzione età (collettivo)
 plt.figure(figsize=(8, 5))
@@ -187,6 +188,7 @@ plt.show()
 
 # boh pare di si ma è roba che vedi già sul sesso e classe
 # perchè titoli femminili/"nobili" hanno un tasso di sopravvivenza più alto
+# tranne preti che sono tutti morti
 
 
 
