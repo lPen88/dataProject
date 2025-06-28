@@ -1,6 +1,6 @@
 # Progetto Data Analytics  
 
-il report è "report.ipynb"  
+il report è "report_actual.pdf"  
 "archive" è il vecchio dataset che abbiamo abbandonato  
 
 partecipanti:  
